@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spam Email Classifier Demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 50px 20px;
+        }
+        .demo-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 700px;
+        }
+        .result-box {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .result-spam {
+            background: #ff4757;
+            color: white;
+        }
+        .result-notspam {
+            background: #2ed573;
+            color: white;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        header h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        header p {
+            color: white;
+            text-align: center;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="mb-4">
+            <h1><i class="fas fa-envelope"></i> Spam Email Classifier</h1>
+            <p>Enter an email below to check if it's spam or not spam</p>
+        </header>
+
+        <div class="demo-container">
+            <div class="mb-3">
+                <label class="form-label"><strong>Email Text:</strong></label>
+                <textarea id="emailInput" class="form-control" rows="6" 
+                    placeholder="Enter email text here...&#10;&#10;Example:&#10;Congratulations! You've won a $1000 Walmart giveaway. Click here to claim your prize now!"
+                ></textarea>
+            </div>
+
+            <button onclick="classifyEmail()" class="btn btn-primary btn-lg w-100">
+                <i class="fas fa-search"></i> Classify Email
+            </button>
+
+            <div class="loading" id="loading">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2">Analyzing email...</p>
+            </div>
+
+            <div id="resultBox" class="result-box" style="display: none;"></div>
+
+            <div class="mt-4">
+                <h5><i class="fas fa-info-circle"></i> Try These Examples:</h5>
+                <button class="btn btn-outline-secondary btn-sm mt-2" onclick="loadExample('spam')">
+                    <i class="fas fa-times"></i> Spam Example
+                </button>
+                <button class="btn btn-outline-secondary btn-sm mt-2" onclick="loadExample('notspam')">
+                    <i class="fas fa-check"></i> Not Spam Example
+                </button>
+            </div>
+
+            <div class="mt-4 text-center">
+                <a href="https://github.com/aaryani2258/Spam-Email-Classifier-Project.git" class="btn btn-outline-primary">
+                    <i class="fas fa-code"></i> View Code on GitHub
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample predictions (replace with your actual model API)
+        const spamExamples = [
+            "Congratulations! You've won a $1000 Walmart giveaway. Click here to claim your prize now! Limited time offer!",
+            "URGENT: Your account will be closed! Verify now at fake-bank.com to avoid closure.",
+            "You're selected! Get a free iPhone by clicking this link and filling out our survey."
+        ];
+
+        const notSpamExamples = [
+            "Hi team, let's meet tomorrow at 10 AM for the project review. Please bring your updates.",
+            "Hey, thanks for sending the document. I'll review it and get back to you by end of day.",
+            "Meeting reminder: We have a client call at 3 PM today. Conference room B is booked."
+        ];
+
+        function loadExample(type) {
+            const examples = type === 'spam' ? spamExamples : notSpamExamples;
+            const random = examples[Math.floor(Math.random() * examples.length)];
+            document.getElementById('emailInput').value = random;
+        }
+
+        // Simple classification logic (replace with your actual model)
+        function classifyEmail() {
+            const email = document.getElementById('emailInput').value.toLowerCase();
+            const loading = document.getElementById('loading');
+            const resultBox = document.getElementById('resultBox');
+
+            if (!email.trim()) {
+                alert('Please enter some email text!');
+                return;
+            }
+
+            loading.style.display = 'block';
+            resultBox.style.display = 'none';
+
+            // Simulate API call delay
+            setTimeout(() => {
+                loading.style.display = 'none';
+
+                // Spam indicators (simple heuristic - replace with your model)
+                const spamIndicators = [
+                    'winner', 'prize', 'free', 'click here', 'urgent', 'limited time',
+                    '$', 'giveaway', 'congratulations', 'claim now', 'act fast', 'offering'
+                ];
+
+                const spamCount = spamIndicators.filter(indicator => 
+                    email.includes(indicator.toLowerCase())
+                ).length;
+
+                resultBox.style.display = 'block';
+
+                if (spamCount >= 2) {
+                    resultBox.className = 'result-box result-spam';
+                    resultBox.innerHTML = `
+                        <i class="fas fa-times-circle"></i> SPAM detected!
+                        <br><small>Spam indicators found: ${spamCount}</small>
+                    `;
+                } else {
+                    resultBox.className = 'result-box result-notspam';
+                    resultBox.innerHTML = `
+                        <i class="fas fa-check-circle"></i> NOT SPAM
+                        <br><small>Safe to open</small>
+                    `;
+                }
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
